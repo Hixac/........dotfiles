@@ -195,16 +195,6 @@ vim.api.nvim_create_autocmd("VimResized", {
   end,
 })
 
--- Create directories when saving files
-vim.api.nvim_create_autocmd("BufWritePre", {
-  group = augroup,
-  callback = function()
-    local dir = vim.fn.expand('<afile>:p:h')
-    if vim.fn.isdirectory(dir) == 0 then
-      vim.fn.mkdir(dir, 'p')
-    end
-  end,
-})
 
 -- ============================================================================
 -- STATUSLINE
@@ -372,19 +362,30 @@ vim.lsp.config('lua_ls', {
 })
 
 vim.lsp.config('rust_analyzer', {
-  settings = {
-    ['rust-analyzer'] = {
-      diagnostics = {
-        enable = true;
-      }
+    cmd = { 'rust-analyzer' },
+    settings = {
+        ['rust-analyzer'] = {
+            assist = {
+                importEnforceGranularity = true,
+                importPrefix = 'crate',
+            },
+            cargo = {
+                allFeatures = true,
+            },
+            inlayHints = { locationLinks = false },
+            diagnostics = {
+                enable = true,
+                experimental = {
+                    enable = true,
+                },
+            },
+        }
     }
-  }
 })
 
 vim.lsp.enable("clangd")
 vim.lsp.enable("bashls")
 vim.lsp.enable("lua_ls")
-vim.lsp.enable("rust_analyzer")
 vim.lsp.enable("basedpyright")
 vim.lsp.enable("ts_ls")
 vim.lsp.enable("neocmake")
@@ -641,6 +642,43 @@ require("lazy").setup({
         init = function()
         end
     },
+    {
+        'stevearc/oil.nvim',
+        dependencies = { "nvim-tree/nvim-web-devicons" },
+        -- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+        lazy = false,
+        config = function()
+            vim.keymap.set("n", "<leader>e", "<CMD>Oil<CR>", { desc = "Open parent directory" })
+            require("oil").setup({
+                default_file_explorer = true,
+                skip_confirm_for_simple_edits = true,
+                columns = {
+                    "icon",
+                    "size",
+                    "mtime"
+                },
+                view_options = {
+                    show_hidden = true,
+                    natural_order = "fast",
+                    case_insensitive = false,
+                },
+                win_options = {
+                    wrap = true
+                },
+            })
+        end
+    },
+    {
+        'mrcjkb/rustaceanvim',
+        -- To avoid being surprised by breaking changes,
+        -- I recommend you set a version range
+        version = '^9',
+        -- This plugin implements proper lazy-loading (see :h lua-plugin-lazy).
+        -- No need for lazy.nvim to lazy-load it.
+        lazy = false,
+        config = function()
+        end
+    }
   }, -- specs
   -- Configure any other settings here. See the documentation for more details.
   -- colorscheme that will be used when installing plugins.

@@ -34,11 +34,12 @@ fi
 # start some nice programs
 
 if [ -d "$xinitdir"/xinitrc.d ] ; then
-	for f in "$xinitdir/xinitrc.d"/?*.sh ; do
-		[ -x "$f" ] && . "$f"
-	done
-	unset f
+    for f in "$xinitdir/xinitrc.d"/?*.sh ; do
+        [ -x "$f" ] && . "$f"
+    done
+    unset f
 fi
 
-exec awesome
 
+# exec i3
+exec awesome
