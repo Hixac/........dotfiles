@@ -90,9 +90,6 @@ vim.keymap.set("n", "N", "Nzzzv", { desc = "Previous search result (centered)" }
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down (centered)" })
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Half page up (centered)" })
 
-vim.keymap.set({ "n", "v" }, "<leader>d", '"_d', { desc = "Delete without yanking" })
-vim.keymap.set({ "n", "v" }, "<leader>dd", '"_dd', { desc = "Delete line without yanking" })
-
 vim.keymap.set("n", "<leader>bn", ":bnext<CR>", { desc = "Next buffer" })
 vim.keymap.set("n", "<leader>bp", ":bprevious<CR>", { desc = "Previous buffer" })
 
@@ -476,8 +473,12 @@ vim.api.nvim_create_autocmd('LspAttach', {
         vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
 
         -- Diagnostics
-        vim.keymap.set('n', '<leader>nd', vim.diagnostic.goto_next, opts)
-        vim.keymap.set('n', '<leader>pd', vim.diagnostic.goto_prev, opts)
+        vim.keymap.set('n', '<leader>nd', function() 
+            vim.diagnostic.jump({count = 1, float = true}) 
+        end, opts)
+        vim.keymap.set('n', '<leader>pd', function() 
+            vim.diagnostic.jump({count = -1, float = true}) 
+        end, opts)
         vim.keymap.set('n', '<leader>d', vim.diagnostic.open_float, opts)
         vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, opts)
 
@@ -677,7 +678,61 @@ require("lazy").setup({
         -- No need for lazy.nvim to lazy-load it.
         lazy = false,
         config = function()
+            vim.g.rustaceanvim = {
+                server = {
+                    default_settings = {
+                        -- rust-analyzer language server configuration
+                        ['rust-analyzer'] = {
+                            check = {
+                                command = "check",
+                            },
+                            checkOnSave = true,
+                        },
+                    },
+                }
+            }
         end
+    },
+    {
+        "sphamba/smear-cursor.nvim",
+        opts = {
+            cursor_color = "#ff4000",
+            particles_enabled = true,
+            stiffness = 0.5,
+            trailing_stiffness = 0.2,
+            trailing_exponent = 5,
+            damping = 0.6,
+            gradient_exponent = 0,
+            gamma = 1,
+            never_draw_over_target = true, -- if you want to actually see under the cursor
+            hide_target_hack = true,       -- same
+            particle_spread = 1,
+            particles_per_second = 500,
+            particles_per_length = 50,
+            particle_max_lifetime = 800,
+            particle_max_initial_velocity = 20,
+            particle_velocity_from_cursor = 0.5,
+            particle_damping = 0.15,
+            particle_gravity = -50,
+            min_distance_emit_particles = 0,
+        },
+    },
+    {
+        "karb94/neoscroll.nvim",
+        opts = {
+            hide_cursor = true,          -- Hide cursor while scrolling
+            stop_eof = true,             -- Stop at <EOF> when scrolling downwards
+            respect_scrolloff = false,   -- Stop scrolling when the cursor reaches the scrolloff margin of the file
+            cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
+            duration_multiplier = 0.4,   -- Global duration multiplier
+            easing = 'sine',           -- Default easing function
+            pre_hook = nil,              -- Function to run before the scrolling animation starts
+            post_hook = nil,             -- Function to run after the scrolling animation ends
+            performance_mode = false,    -- Disable "Performance Mode" on all buffers.
+            ignored_events = {           -- Events ignored while scrolling
+                'WinScrolled', 'CursorMoved'
+            },
+        },
     }
   }, -- specs
   -- Configure any other settings here. See the documentation for more details.
